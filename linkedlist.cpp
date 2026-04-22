@@ -176,22 +176,94 @@ void LinkedList::bubbleSortByEmission(std::chrono::duration<double>& time) {
     time = end - start;
 }
 
-void LinkedList::sortByAge() {
+void LinkedList::sortByAge(int algorithm) {
     std::chrono::duration<double> time;
-    bubbleSortByAge(time);
-    std::cout << "Sorted by Age in " << time.count() << " seconds." << std::endl;
+    if (algorithm == 0) {
+        bubbleSortByAge(time);
+        std::cout << "Bubble Sorted by Age in " << time.count() << " seconds." << std::endl;
+    } else {
+        mergeSortByAge(time);
+        std::cout << "Merge Sorted by Age in " << time.count() << " seconds." << std::endl;
+    }
 }
 
-void LinkedList::sortByDistance() {
+void LinkedList::sortByDistance(int algorithm) {
     std::chrono::duration<double> time;
-    bubbleSortByDistance(time);
-    std::cout << "Sorted by Distance in " << time.count() << " seconds." << std::endl;
+    if (algorithm == 0) {
+        bubbleSortByDistance(time);
+        std::cout << "Bubble Sorted by Distance in " << time.count() << " seconds." << std::endl;
+    } else {
+        mergeSortByDistance(time);
+        std::cout << "Merge Sorted by Distance in " << time.count() << " seconds." << std::endl;
+    }
 }
 
-void LinkedList::sortByEmission() {
+void LinkedList::mergeSortByAge(std::chrono::duration<double>& time) {
+    auto start = std::chrono::high_resolution_clock::now();
+    head = mergeSort(head, 0);
+    auto end = std::chrono::high_resolution_clock::now();
+    time = end - start;
+}
+
+void LinkedList::mergeSortByDistance(std::chrono::duration<double>& time) {
+    auto start = std::chrono::high_resolution_clock::now();
+    head = mergeSort(head, 1);
+    auto end = std::chrono::high_resolution_clock::now();
+    time = end - start;
+}
+
+void LinkedList::mergeSortByEmission(std::chrono::duration<double>& time) {
+    auto start = std::chrono::high_resolution_clock::now();
+    head = mergeSort(head, 2);
+    auto end = std::chrono::high_resolution_clock::now();
+    time = end - start;
+}
+
+void LinkedList::sortByEmission(int algorithm) {
     std::chrono::duration<double> time;
-    bubbleSortByEmission(time);
-    std::cout << "Sorted by Emission in " << time.count() << " seconds." << std::endl;
+    if (algorithm == 0) {
+        bubbleSortByEmission(time);
+        std::cout << "Bubble Sorted by Emission in " << time.count() << " seconds." << std::endl;
+    } else {
+        mergeSortByEmission(time);
+        std::cout << "Merge Sorted by Emission in " << time.count() << " seconds." << std::endl;
+    }
+}
+
+Node* LinkedList::mergeSort(Node* head, int sortType) {
+    if (!head || !head->next) return head;
+
+    Node* slow = head;
+    Node* fast = head->next;
+    while (fast && fast->next) {
+        slow = slow->next;
+        fast = fast->next->next;
+    }
+    Node* mid = slow->next;
+    slow->next = nullptr;
+
+    Node* left = mergeSort(head, sortType);
+    Node* right = mergeSort(mid, sortType);
+
+    return merge(left, right, sortType);
+}
+
+Node* LinkedList::merge(Node* left, Node* right, int sortType) {
+    if (!left) return right;
+    if (!right) return left;
+
+    bool condition;
+    if (sortType == 0) condition = left->age <= right->age;
+    else if (sortType == 1) condition = left->dailyDistance <= right->dailyDistance;
+    else condition = left->carbonEmission <= right->carbonEmission;
+
+    if (condition) {
+        left->next = merge(left->next, right, sortType);
+        return left;
+    } else {
+        right->next = merge(left, right->next, sortType);
+        return right;
+    }
 }
 
 Node* LinkedList::searchByAgeGroup(AgeGroup group, std::chrono::duration<double>& time) {
