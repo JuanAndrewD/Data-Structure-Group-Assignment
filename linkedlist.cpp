@@ -266,50 +266,363 @@ Node* LinkedList::merge(Node* left, Node* right, int sortType) {
     }
 }
 
-Node* LinkedList::searchByAgeGroup(AgeGroup group, std::chrono::duration<double>& time) {
+
+/*Bubblesort instead of mergesort used for pre-sorting data for early-exit. This is for comparing performance purpose or control variable since we know mergesort is more efficient. Used for the search by transport mode.*/
+void LinkedList::bubbleSortByMode(std::chrono::duration<double>& time) {
     auto start = std::chrono::high_resolution_clock::now();
+    if (!head) return;
+    bool swapped;
+    do {
+        swapped = false;
+        Node* current = head;
+        while (current->next) {
+            if (current->modeOfTransport > current->next->modeOfTransport) {
+                std::swap(current->residentID, current->next->residentID);
+                std::swap(current->age, current->next->age);
+                std::swap(current->modeOfTransport, current->next->modeOfTransport);
+                std::swap(current->dailyDistance, current->next->dailyDistance);
+                std::swap(current->carbonEmissionFactor, current->next->carbonEmissionFactor);
+                std::swap(current->averageDayPerMonth, current->next->averageDayPerMonth);
+                std::swap(current->carbonEmission, current->next->carbonEmission);
+                std::swap(current->ageGroup, current->next->ageGroup);
+                swapped = true;
+            }
+            current = current->next;
+        }
+    } while (swapped);
+    auto end = std::chrono::high_resolution_clock::now();
+    time = end - start;
+}
+
+
+//Tortoise and Hare helper to find middle node between start and last (used for binary searches)
+Node* LinkedList::getMiddle(Node* start, Node* last) {
+    if (start == nullptr) return nullptr;
+    if (start == last) return start;
+
+    Node* slow = start;
+    Node* fast = start->next;
+
+    while (fast != last) {
+        fast = fast->next;
+        slow = slow->next;
+        if (fast != last) {
+            fast = fast->next;
+        }
+    }
+    return slow;
+}
+
+
+/*Linear search functions for unsorted data */
+void LinkedList::linearSearchByAge(AgeGroup group, std::chrono::duration<double>& time) {
+    auto start = std::chrono::high_resolution_clock::now();
+    bool found = false;
     Node* current = head;
+
+    std::cout << std::string(30, '=') << std::endl;
+
     while (current) {
         if (current->ageGroup == group) {
-            auto end = std::chrono::high_resolution_clock::now();
-            time = end - start;
-            return current;
+            std::cout << current->residentID << ", Age: " << current->age << ", Distance: " << current->dailyDistance << std::endl;
+            found = true;
         }
         current = current->next;
     }
+    std::cout << std::string(30, '=') << std::endl;
+
     auto end = std::chrono::high_resolution_clock::now();
     time = end - start;
-    return nullptr;
+
+    if (!found) std::cout << "No residents found." << std::endl;
+    std::cout << "Search completed in " << time.count() << " seconds." << std::endl;
 }
 
-Node* LinkedList::searchByMode(const std::string& mode, std::chrono::duration<double>& time) {
+
+/*Linear search with early exit for sorted data (uses pre-sorted from mergesort) */
+void LinkedList::earlyExitSearchByAge(AgeGroup group, std::chrono::duration<double>& time) {
     auto start = std::chrono::high_resolution_clock::now();
+    bool found = false;
     Node* current = head;
+
+    while (current) {
+        if (current->ageGroup > group) {
+            std::cout << "Passed target age group. Stopping search." << std::endl;
+            break;
+        }
+        if (current->ageGroup == group) {
+            std::cout << current->residentID << ", Age: " << current->age << ", Dist: " << current->dailyDistance << "km" << std::endl;
+            found = true;
+        }
+        current = current->next;
+    }
+    std::cout << std::string(30, '=') << std::endl;
+
+    auto end = std::chrono::high_resolution_clock::now();
+    time = end - start;
+
+    if (!found) std::cout << "No residents found." << std::endl;
+    time = end - start;
+}
+
+
+/*Binary search*/
+//Binary search on linked list(does not work efficiently but for experimental purposes)
+void LinkedList::binarySearchByAge(AgeGroup group, std::chrono::duration<double>& time) {
+    auto start = std::chrono::high_resolution_clock::now();
+    bool found = false;
+    Node* startNode = head;
+    Node* lastNode = nullptr;
+
+    while (true) {
+        Node* mid = getMiddle(startNode, lastNode);
+        if (mid == nullptr) break;
+
+        if (mid->ageGroup == group) {
+            std::cout << mid->residentID << ", Age: " << mid->age << ", Dist: " << mid->dailyDistance << "km" << std::endl;
+            std::cout << "First match found! (Binary Search stops here)" << std::endl;
+            found = true;
+            break;
+        }
+        else if (startNode == lastNode) break;
+        else if (mid->ageGroup < group) startNode = mid->next;
+        else lastNode = mid;
+    }
+    std::cout << std::string(30, '=') << std::endl;
+
+    auto end = std::chrono::high_resolution_clock::now();
+    time = end - start;
+
+    if (!found) std::cout << "No residents found." << std::endl;
+    time = end - start;
+}
+
+
+
+void LinkedList::searchAge(int algorithm, AgeGroup group) {
+    std::chrono::duration<double> time;
+
+    if (algorithm == 0) {
+        linearSearchByAge(group, time);
+    }
+    else if (algorithm == 1) {
+        earlyExitSearchByAge(group, time);
+    }
+    else if (algorithm == 2) {
+        binarySearchByAge(group, time);
+    }
+    else {
+        std::cout << "Invalid algorithm choice!" << std::endl;
+    }
+}
+
+
+/*Linear search functions for unsorted data */
+void LinkedList::linearSearchByMode(const std::string& mode, std::chrono::duration<double>& time) {
+    auto start = std::chrono::high_resolution_clock::now();
+    bool found = false;
+    Node* current = head;
+
+    std::cout << std::string(30, '=') << std::endl;
+
     while (current) {
         if (current->modeOfTransport == mode) {
-            auto end = std::chrono::high_resolution_clock::now();
-            time = end - start;
-            return current;
+            std::cout << current->residentID << ", Mode: " << current->modeOfTransport << ", Dist: " << current->dailyDistance << "km" << std::endl;
+            found = true;
         }
         current = current->next;
     }
+    std::cout << std::string(30, '=') << std::endl;
+
     auto end = std::chrono::high_resolution_clock::now();
     time = end - start;
-    return nullptr;
+
+    if (!found) std::cout << "No residents found." << std::endl;
+    std::cout << "Search completed in " << time.count() << " seconds." << std::endl;
 }
 
-Node* LinkedList::searchByDistanceThreshold(double threshold, std::chrono::duration<double>& time) {
+
+/*Linear search with early exit for sorted data (uses pre-sorted from mergesort) */
+void LinkedList::earlyExitSearchByMode(const std::string& mode, std::chrono::duration<double>& time) {
     auto start = std::chrono::high_resolution_clock::now();
+    bool found = false;
     Node* current = head;
+
+    std::cout << std::string(30, '=') << std::endl;
+
     while (current) {
-        if (current->dailyDistance > threshold) {
-            auto end = std::chrono::high_resolution_clock::now();
-            time = end - start;
-            return current;
+        if (current->modeOfTransport > mode) {
+            std::cout << "Passed target transport mode. Stopping search." << std::endl;
+            break;
+        }
+        if (current->modeOfTransport == mode) {
+            std::cout << current->residentID << ", Mode: " << current->modeOfTransport << ", Dist: " << current->dailyDistance << "km" << std::endl;
+            found = true;
         }
         current = current->next;
     }
+
+    std::cout << std::string(30, '=') << std::endl;
+
     auto end = std::chrono::high_resolution_clock::now();
     time = end - start;
-    return nullptr;
+
+    if (!found) std::cout << "No residents found." << std::endl;
+    std::cout << "Search completed in " << time.count() << " seconds." << std::endl;
+}
+
+/*Binary search*/
+//Binary search on linked list(does not work efficiently but for experimental purposes)
+void LinkedList::binarySearchByMode(const std::string& mode, std::chrono::duration<double>& time) {
+    auto start = std::chrono::high_resolution_clock::now();
+    bool found = false;
+    Node* startNode = head;
+    Node* lastNode = nullptr;
+
+    std::cout << std::string(30, '=') << std::endl;
+
+    while (true) {
+        Node* mid = getMiddle(startNode, lastNode);
+        if (mid == nullptr) break;
+
+        if (mid->modeOfTransport == mode) {
+            std::cout << mid->residentID << ", Mode: " << mid->modeOfTransport << ", Dist: " << mid->dailyDistance << "km" << std::endl;
+            std::cout << "First match found! (Binary Search stops here)" << std::endl;
+            found = true;
+            break;
+        }
+        else if (startNode == lastNode) break;
+        else if (mid->modeOfTransport < mode) startNode = mid->next;
+        else lastNode = mid;
+    }
+
+    std::cout << std::string(30, '=') << std::endl;
+
+    auto end = std::chrono::high_resolution_clock::now();
+    time = end - start;
+
+    if (!found) std::cout << "No residents found." << std::endl;
+    std::cout << "Search completed in " << time.count() << " seconds." << std::endl;
+}
+
+
+void LinkedList::searchMode(int algorithm, const std::string& mode) {
+    std::chrono::duration<double> time;
+    if (algorithm == 0) {
+        linearSearchByMode(mode, time);
+    }
+    else if (algorithm == 1) {
+        earlyExitSearchByMode(mode, time);
+    }
+    else if (algorithm == 2) {
+        binarySearchByMode(mode, time);
+    }
+    else {
+        std::cout << "Invalid algorithm choice!" << std::endl;
+    }
+}
+
+
+/*Linear search functions for unsorted data */
+void LinkedList::linearSearchByDistance(double threshold, std::chrono::duration<double>& time) {
+    auto start = std::chrono::high_resolution_clock::now();
+    bool found = false;
+    Node* current = head;
+
+    std::cout << std::string(30, '=') << std::endl;
+
+    while (current) {
+        if (current->dailyDistance == threshold) {
+            std::cout << current->residentID << ", Dist: " << current->dailyDistance << "km, Mode: " << current->modeOfTransport << std::endl;
+            found = true;
+        }
+        current = current->next;
+    }
+    std::cout << std::string(30, '=') << std::endl;
+
+    auto end = std::chrono::high_resolution_clock::now();
+    time = end - start;
+
+    if (!found) std::cout << "No residents found." << std::endl;
+    std::cout << "Search completed in " << time.count() << " seconds." << std::endl;
+}
+
+
+/*Linear search with early exit for sorted data (uses pre-sorted from mergesort) */
+void LinkedList::earlyExitSearchByDistance(double threshold, std::chrono::duration<double>& time) {
+    auto start = std::chrono::high_resolution_clock::now();
+    bool found = false;
+    Node* current = head;
+
+    std::cout << std::string(30, '=') << std::endl;
+
+    while (current) {
+        if (current->dailyDistance > threshold) {
+            std::cout << "Passed target distance. Stopping search." << std::endl;
+            break;
+        }
+        if (current->dailyDistance == threshold) {
+            std::cout << current->residentID << ", Dist: " << current->dailyDistance << "km, Mode: " << current->modeOfTransport << std::endl;
+            found = true;
+        }
+        current = current->next;
+    }
+    std::cout << std::string(30, '=') << std::endl;
+
+    auto end = std::chrono::high_resolution_clock::now();
+    time = end - start;
+
+    if (!found) std::cout << "No residents found." << std::endl;
+    std::cout << "Search completed in " << time.count() << " seconds." << std::endl;
+}
+
+
+/*Binary search*/
+//Binary search on linked list(does not work efficiently but for experimental purposes)
+void LinkedList::binarySearchByDistance(double threshold, std::chrono::duration<double>& time) {
+    auto start = std::chrono::high_resolution_clock::now();
+    bool found = false;
+    Node* startNode = head;
+    Node* lastNode = nullptr;
+
+    std::cout << std::string(30, '=') << std::endl;
+
+    while (true) {
+        Node* mid = getMiddle(startNode, lastNode);
+        if (mid == nullptr) break;
+
+        if (mid->dailyDistance == threshold) {
+            std::cout << mid->residentID << ", Dist: " << mid->dailyDistance << "km, Mode: " << mid->modeOfTransport << std::endl;
+            std::cout << "First match found! (Binary Search stops here)" << std::endl;
+            found = true;
+            break;
+        }
+        else if (startNode == lastNode) break;
+        else if (mid->dailyDistance < threshold) startNode = mid->next;
+        else lastNode = mid;
+    }
+    std::cout << std::string(30, '=') << std::endl;
+
+    auto end = std::chrono::high_resolution_clock::now();
+    time = end - start;
+
+    if (!found) std::cout << "No residents found." << std::endl;
+    std::cout << "Search completed in " << time.count() << " seconds." << std::endl;
+}
+
+
+void LinkedList::searchDistance(int algorithm, double threshold) {
+    std::chrono::duration<double> time;
+    if (algorithm == 0) {
+        linearSearchByDistance(threshold, time);
+    }
+    else if (algorithm == 1) {
+        earlyExitSearchByDistance(threshold, time);
+    }
+    else if (algorithm == 2) {
+        binarySearchByDistance(threshold, time);
+    }
+    else {
+        std::cout << "Invalid algorithm choice!" << std::endl;
+    }
 }

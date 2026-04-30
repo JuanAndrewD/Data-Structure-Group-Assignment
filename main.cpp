@@ -70,52 +70,83 @@ int main() {
             } else {
                 std::cout << "Please load CSV files first." << std::endl;
             }
-        } else if (choice == 6) {
+        }
+        else if (choice == 6) {
             if (csvLoaded) {
-                std::cout << "Enter age group (0: 6-17, 1: 18-25, 2: 26-35, 3: 36-50, 4: 51+): ";
+                std::cout << "\nChoose search algorithm: (0: Linear Search (Unsorted), 1: Early-Exit Search (Sorted), 2: Binary Search (Sorted)):" << std::endl;
+                int algo;
+                std::cin >> algo;
+
+                if (algo == 1 || algo == 2) {
+                    std::cout << "(Auto-sorting data to prepare for search...)\n";
+                    std::chrono::duration<double> sortTime;
+                    list.mergeSortByAge(sortTime);
+                }
+
+                std::cout << "\nEnter age group (0: 6-17, 1: 18-25, 2: 26-35, 3: 36-50, 4: 51+): ";
                 int group;
                 std::cin >> group;
-                std::chrono::duration<double> time;
-                Node* found = list.searchByAgeGroup(static_cast<AgeGroup>(group), time);
-                if (found) {
-                    std::cout << "Found: ID " << found->residentID << " in " << time.count() << " seconds." << std::endl;
-                } else {
-                    std::cout << "Not found in " << time.count() << " seconds." << std::endl;
-                }
-            } else {
+
+                std::string groupName = (
+                    group == 0 ? "6-17" :
+                    group == 1 ? "18-25" :
+                    group == 2 ? "26-35" :
+                    group == 3 ? "36-50" :
+                    group == 4 ? "51+" :
+                    "Unknown"
+                    );
+                std::cout << "\nAge Group Search Result" << std::endl;
+                list.searchAge(algo, static_cast<AgeGroup>(group));
+            }
+            else {
                 std::cout << "Please load CSV files first." << std::endl;
             }
-        } else if (choice == 7) {
+        }
+        else if (choice == 7) {
             if (csvLoaded) {
-                std::cout << "Enter mode of transport: ";
+                std::cout << "\nChoose search algorithm: (0: Linear Search (Unsorted), 1: Early-Exit Search (Sorted), 2: Binary Search (Sorted)):" << std::endl;
+                int algo;
+                std::cin >> algo;
+
+                if (algo == 1 || algo == 2) {
+                    std::cout << "(Auto-sorting data to prepare for search...)\n";
+                    std::chrono::duration<double> sortTime;
+                    list.bubbleSortByMode(sortTime);
+                }
+                std::cout << "\nEnter exact transport mode (e.g. Car, Bicycle, Bus): ";
                 std::string mode;
                 std::cin >> mode;
-                std::chrono::duration<double> time;
-                Node* found = list.searchByMode(mode, time);
-                if (found) {
-                    std::cout << "Found: ID " << found->residentID << " in " << time.count() << " seconds." << std::endl;
-                } else {
-                    std::cout << "Not found in " << time.count() << " seconds." << std::endl;
-                }
-            } else {
+
+                std::cout << "\nTransport Mode Search Result" << std::endl;
+                list.searchMode(algo, mode);
+            }
+            else {
                 std::cout << "Please load CSV files first." << std::endl;
             }
-        } else if (choice == 8) {
+        }
+        else if (choice == 8) {
             if (csvLoaded) {
-                std::cout << "Enter distance threshold: ";
+                std::cout << "\nChoose search algorithm: (0: Linear Search (Unsorted), 1: Early-Exit Search (Sorted), 2: Binary Search (Sorted)): " << std::endl;
+                int algo;
+                std::cin >> algo;
+
+                if (algo == 1 || algo == 2) {
+                    std::cout << "(Auto-sorting data to prepare for search...)\n";
+                    std::chrono::duration<double> sortTime;
+                    list.mergeSortByDistance(sortTime);
+                }
+                std::cout << "\nEnter distance threshold (e.g. > 15km): ";
                 double threshold;
                 std::cin >> threshold;
-                std::chrono::duration<double> time;
-                Node* found = list.searchByDistanceThreshold(threshold, time);
-                if (found) {
-                    std::cout << "Found: ID " << found->residentID << " in " << time.count() << " seconds." << std::endl;
-                } else {
-                    std::cout << "Not found in " << time.count() << " seconds." << std::endl;
-                }
-            } else {
+
+                std::cout << "\nDistance Search Result" << std::endl;
+                list.searchDistance(algo, threshold);
+            }
+            else {
                 std::cout << "Please load CSV files first." << std::endl;
             }
-        } else if (choice == 9) {
+        }
+        else if (choice == 9) {
             if (csvLoaded) {
                 list.display();
             } else {
