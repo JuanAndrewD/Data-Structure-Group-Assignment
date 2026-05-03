@@ -382,18 +382,31 @@ void LinkedList::displayPerformanceSummary() {
         void (LinkedList::*mergeFn) (std::chrono::duration<double>&),
         double& bAvg, double& mAvg)
     {
-        double bTotal = 0.0, mTotal = 0.0;
-        for (int i = 0; i < SORT_RUNS; i++) {
-            std::chrono::duration<double> t;
+        const int LARGE_RUNS = 1000; // Increase this to 1000 or more
+        
+        // We measure the ENTIRE block of runs to get a thick enough time slice
+        auto bStart = std::chrono::high_resolution_clock::now();
+        for (int i = 0; i < LARGE_RUNS; i++) {
+            std::chrono::duration<double> dummy;
             reverseList();
-            (this->*bubbleFn)(t);
-            bTotal += t.count();
-            reverseList();
-            (this->*mergeFn)(t);
-            mTotal += t.count();
+            (this->*bubbleFn)(dummy);
         }
-        bAvg = bTotal / SORT_RUNS;
-        mAvg = mTotal / SORT_RUNS;
+        auto bEnd = std::chrono::high_resolution_clock::now();
+
+        auto mStart = std::chrono::high_resolution_clock::now();
+        for (int i = 0; i < LARGE_RUNS; i++) {
+            std::chrono::duration<double> dummy;
+            reverseList();
+            (this->*mergeFn)(dummy);
+        }
+        auto mEnd = std::chrono::high_resolution_clock::now();
+
+        // Calculate total duration for all runs, then divide by the number of runs
+        std::chrono::duration<double> bTotal = bEnd - bStart;
+        std::chrono::duration<double> mTotal = mEnd - mStart;
+
+        bAvg = bTotal.count() / LARGE_RUNS;
+        mAvg = mTotal.count() / LARGE_RUNS;
     };
 
     double bAvg, mAvg;
