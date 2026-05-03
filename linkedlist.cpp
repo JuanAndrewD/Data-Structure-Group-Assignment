@@ -382,9 +382,8 @@ void LinkedList::displayPerformanceSummary() {
         void (LinkedList::*mergeFn) (std::chrono::duration<double>&),
         double& bAvg, double& mAvg)
     {
-        const int LARGE_RUNS = 1000; // Increase this to 1000 or more
-        
-        // We measure the ENTIRE block of runs to get a thick enough time slice
+        const int LARGE_RUNS = 1000;
+
         auto bStart = std::chrono::high_resolution_clock::now();
         for (int i = 0; i < LARGE_RUNS; i++) {
             std::chrono::duration<double> dummy;
@@ -401,7 +400,6 @@ void LinkedList::displayPerformanceSummary() {
         }
         auto mEnd = std::chrono::high_resolution_clock::now();
 
-        // Calculate total duration for all runs, then divide by the number of runs
         std::chrono::duration<double> bTotal = bEnd - bStart;
         std::chrono::duration<double> mTotal = mEnd - mStart;
 
