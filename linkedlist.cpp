@@ -195,7 +195,7 @@ void LinkedList::display() {
 
     std::cout << std::left
               << std::setw(10) << "ID"
-              << std::setw(6)  << "Age"
+              << std::setw(6) << "Age"
               << std::setw(14) << "AgeGroup"
               << std::setw(14) << "Transport"
               << std::setw(10) << "Dist(km)"
@@ -567,7 +567,7 @@ void LinkedList::displayInsights() {
     double totalEmission[NUM_GROUPS] = {0};
     int count[NUM_GROUPS] = {0};
     std::map<std::string, double> modeEmission;
-    std::map<std::string, int>    modeCount;
+    std::map<std::string, int> modeCount;
     // Track most preferred mode per age group
     std::map<std::string, int> modeCountPerGroup[NUM_GROUPS];
 
@@ -843,7 +843,7 @@ void LinkedList::bubbleSortByMode(std::chrono::duration<double>& time) {
     time = std::chrono::high_resolution_clock::now() - start;
 }
 
-// Merge Sort : O(n log n), O(log n) stack space
+// Merge Sort
 void LinkedList::mergeSortByAge(std::chrono::duration<double>& time) {
     auto start = std::chrono::high_resolution_clock::now();
     head = mergeSort(head, 0);
@@ -888,9 +888,9 @@ Node* LinkedList::merge(Node* left, Node* right, int sortType) {
     if (!right) return left;
 
     bool takeLeft;
-    if      (sortType == 0) takeLeft = (left->age             <= right->age);
-    else if (sortType == 1) takeLeft = (left->dailyDistance   <= right->dailyDistance);
-    else                    takeLeft = (left->carbonEmission  <= right->carbonEmission);
+    if (sortType == 0) takeLeft = (left->age <= right->age);
+    else if (sortType == 1) takeLeft = (left->dailyDistance <= right->dailyDistance);
+    else takeLeft = (left->carbonEmission <= right->carbonEmission);
 
     if (takeLeft) {
         left->next = merge(left->next, right, sortType);
@@ -903,7 +903,7 @@ Node* LinkedList::merge(Node* left, Node* right, int sortType) {
 
 // Find middle node using slow/fast pointer
 Node* LinkedList::getMiddle(Node* start, Node* last) {
-    if (!start)       return nullptr;
+    if (!start) return nullptr;
     if (start == last) return start;
     Node* slow = start;
     Node* fast = start->next;
@@ -932,7 +932,7 @@ static void printSearchRow(Node* n) {
 static void printSearchHeader() {
     std::cout << std::left
               << std::setw(10) << "ID"
-              << std::setw(6)  << "Age"
+              << std::setw(6) << "Age"
               << std::setw(14) << "AgeGroup"
               << std::setw(14) << "Transport"
               << std::setw(10) << "Dist(km)"
@@ -1026,7 +1026,7 @@ void LinkedList::binarySearchByAge(AgeGroup group, std::chrono::duration<double>
     printDoubleSeparator(68);
 }
 
-// Linear search first-match only : stops at first hit, O(n) worst case O(1) best
+// Linear search first-match only : stops at first hit
 void LinkedList::linearSearchFirstByAge(AgeGroup group, std::chrono::duration<double>& time) {
     auto  start = std::chrono::high_resolution_clock::now();
     bool  found = false;
@@ -1111,8 +1111,8 @@ void LinkedList::earlyExitSearchByMode(const std::string& mode, std::chrono::dur
 
 // Binary search by mode : sorted, finds first match only
 void LinkedList::binarySearchByMode(const std::string& mode, std::chrono::duration<double>& time) {
-    auto  start     = std::chrono::high_resolution_clock::now();
-    bool  found     = false;
+    auto  start = std::chrono::high_resolution_clock::now();
+    bool  found = false;
     Node* startNode = head;
     Node* lastNode  = nullptr;
 
@@ -1234,10 +1234,10 @@ void LinkedList::earlyExitSearchByDistance(double threshold, std::chrono::durati
 
 // Binary search: sorted, locates boundary where distance > threshold then prints all
 void LinkedList::binarySearchByDistance(double threshold, std::chrono::duration<double>& time) {
-    auto  start     = std::chrono::high_resolution_clock::now();
-    bool  found     = false;
+    auto  start = std::chrono::high_resolution_clock::now();
+    bool  found = false;
     Node* startNode = head;
-    Node* lastNode  = nullptr;
+    Node* lastNode = nullptr;
 
     printDoubleSeparator(68);
     std::cout << "Binary Search (Sorted) : Distance > "
@@ -1286,8 +1286,8 @@ void LinkedList::binarySearchByDistance(double threshold, std::chrono::duration<
 
 // Linear search first-match only : stops at first node with distance > threshold
 void LinkedList::linearSearchFirstByDistance(double threshold, std::chrono::duration<double>& time) {
-    auto  start = std::chrono::high_resolution_clock::now();
-    bool  found = false;
+    auto start = std::chrono::high_resolution_clock::now();
+    bool found = false;
     printDoubleSeparator(68);
     std::cout << "Linear Search - First Match Only (Unsorted) : Distance > "
               << std::fixed << std::setprecision(1) << threshold << " km" << std::endl;
@@ -1305,7 +1305,7 @@ void LinkedList::linearSearchFirstByDistance(double threshold, std::chrono::dura
     time = std::chrono::high_resolution_clock::now() - start;
     printSeparator(68);
     if (!found) std::cout << "No resident with distance > " << threshold << " km." << std::endl;
-    else        std::cout << "First match found : search stopped early." << std::endl;
+    else std::cout << "First match found : search stopped early." << std::endl;
     std::cout << "Time : " << std::fixed << std::setprecision(8)
               << time.count() << "s | Complexity: O(n) worst, O(1) best" << std::endl;
     printDoubleSeparator(68);
