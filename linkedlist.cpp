@@ -122,10 +122,10 @@ void LinkedList::readCSV(const std::string& filename) {
         trim(distStr); trim(factorStr); trim(daysStr);
 
         try {
-            age    = std::stoi(ageStr);
-            dist   = std::stod(distStr);
+            age = std::stoi(ageStr);
+            dist = std::stod(distStr);
             factor = std::stod(factorStr);
-            days   = std::stoi(daysStr);
+            days = std::stoi(daysStr);
         } catch (...) {
             std::cerr << "WARN: Skipping malformed row: " << line << std::endl;
             continue;
@@ -210,7 +210,7 @@ void LinkedList::display() {
     while (current) {
         std::cout << std::left
                   << std::setw(10) << current->residentID
-                  << std::setw(6)  << current->age
+                  << std::setw(6) << current->age
                   << std::setw(14) << ageGroupRange(current->ageGroup)
                   << std::setw(14) << current->modeOfTransport
                   << std::setw(10) << std::fixed << std::setprecision(1)
@@ -268,12 +268,12 @@ void LinkedList::displayAnalytics() {
         for (auto& kv : modeEmission[i]) {
             const std::string& mode = kv.first;
             double modeTotal = kv.second;
-            int    mc        = modeCount[i][mode];
+            int mc = modeCount[i][mode];
             // Average per resident for this mode within the age group
-            double modeAvg   = (mc > 0) ? modeTotal / mc : 0.0;
+            double modeAvg = (mc > 0) ? modeTotal / mc : 0.0;
             std::cout << std::left
                       << std::setw(16) << mode
-                      << std::setw(8)  << mc
+                      << std::setw(8) << mc
                       << std::setw(24) << std::fixed << std::setprecision(2) << modeTotal
                       << std::setw(20) << std::fixed << std::setprecision(2) << modeAvg
                       << "\n";
@@ -325,7 +325,7 @@ void LinkedList::displayAnalytics() {
     printDoubleSeparator(85);
 
     // Emissions by transport mode (all cities combined)
-    std::map<std::string, int>    allModeCount;
+    std::map<std::string, int> allModeCount;
     std::map<std::string, double> allModeEmission;
     current = head;
     while (current) {
